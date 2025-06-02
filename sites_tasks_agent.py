@@ -72,7 +72,6 @@ class SitesTasksAgent(BaseAgent):
             sites_helper= sites_helper,
             tasks_helper=tasks_helper,
             overall_helper=overall_helper,
-            sub_agents=sub_agents_list
         )
 
 
@@ -88,7 +87,7 @@ class SitesTasksAgent(BaseAgent):
             logger.info(f"[{self.name}] Event from Delegator: {event.model_dump_json(indent=2, exclude_none=True)}")
             yield event
 
-        logger.info(ctx.session.state.get('intent'))
+        logger.info("Intent: "+ ctx.session.state.get('intent'))
 
         intent = ctx.session.state.get('intent')
 
