@@ -7,6 +7,7 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
 from google.genai import types # For creating message Content/Parts
 from typing import AsyncGenerator
+from utils import prompts, mock_api
 
 import warnings
 # Ignore all warnings
@@ -113,22 +114,17 @@ class SitesTasksAgent(BaseAgent):
 delegator = LlmAgent(
     name="delegator",
     model=MODEL_GEMINI_2_0_FLASH,
-    instruction="""Your job is to act as a routing agent. Analyze the user's request and categorize its primary intent into one of three distinct types:
-
-1.  **SITE**: If the request is about getting information on a specific site, listing sites, or querying site properties (like status, location, ID).
-2.  **TASK**: If the request is about managing, querying, or performing an action related to a project, task, or work item.
-3.  **OVERALL**: If the request is for a general summary, aggregate statistics, or high-level overview of sites or tasks.
-
-Simply respond with the intent type alone.
-""",
+    instruction=prompts.delegator,
     input_schema=None,
+    tools=[mock_api],
     output_key="intent"
 )
 
 sites_helper = LlmAgent(
     name="SitesHelper",
     model=MODEL_GEMINI_2_0_FLASH,
-    instruction="You are the Site Agent. A user is asking about site information. Respond with a confirmation that you are the Site Agent and acknowledge the request for site details.",
+    instruction=prompts.sites,
+    tools=[mock_api],
     input_schema=None
 )
 
@@ -161,10 +157,12 @@ SESSION_ID = "session01"
 
 async def main():
     session_service = InMemorySessionService()
+    # initial_state = {"sites_context" : mock_api()}
     session = await session_service.create_session(
         app_name=APP_NAME,
         user_id=USER_ID,
         session_id=SESSION_ID,
+        #state=initial_state
     )
     logger.info(f"Initial session state: {session.state}")
 
@@ -192,12 +190,13 @@ async def main():
             user_id=USER_ID,
             session_id=SESSION_ID,
         )
-        print("Final Session State:")
-        import json
-        print(json.dumps(final_session.state, indent=2))
+        # print("Final Session State:")
+        # import json
+        # print(json.dumps(final_session.state, indent=2))
         print("-------------------------------\n")
 
-    await call_agent("Show me site details for ATL001.")
+    await call_agent("Show me site details for ATH2.")
+    
 
 if __name__ == "__main__":
     asyncio.run(main())
