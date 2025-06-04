@@ -5,14 +5,14 @@ import json
 llm = LLM(
     model="gemini/gemini-2.0-flash",
     temperature=0.7,
-    api_key="AIzaSyBU2zrob-KHFYfHsOvq47hK8rWAA-BDSYc"
+    api_key=""
 )
 
 embedder= {
         "provider": "google",
         "config": {
             "model": "models/text-embedding-004",
-            "api_key": "AIzaSyBU2zrob-KHFYfHsOvq47hK8rWAA-BDSYc"
+            "api_key": ""
         }
     }
 
