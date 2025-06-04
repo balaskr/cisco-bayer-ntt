@@ -1,4 +1,3 @@
-import os
 import asyncio
 from google.adk.agents import Agent, BaseAgent, LlmAgent
 from google.adk.agents.invocation_context import InvocationContext
@@ -7,7 +6,7 @@ from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
 from google.genai import types # For creating message Content/Parts
 from typing import AsyncGenerator
-from utils import prompts, mock_api
+from google_adk.utils import prompts, mock_api
 
 import warnings
 # Ignore all warnings
@@ -116,7 +115,7 @@ delegator = LlmAgent(
     model=MODEL_GEMINI_2_0_FLASH,
     instruction=prompts.delegator,
     input_schema=None,
-    tools=[mock_api],
+    # tools=[mock_api],
     output_key="intent"
 )
 
@@ -124,7 +123,6 @@ sites_helper = LlmAgent(
     name="SitesHelper",
     model=MODEL_GEMINI_2_0_FLASH,
     instruction=prompts.sites,
-    tools=[mock_api],
     input_schema=None
 )
 
@@ -173,7 +171,7 @@ async def main():
     )
 
     async def call_agent(query: str):
-        content = types.Content(role='user', parts=[types.Part(text=f"{query}")])
+        content = types.Content(role='user', parts=[types.Part(text=f"{query}\n\nJson Data:{mock_api()}")])
         events = runner.run(user_id=USER_ID, session_id=SESSION_ID, new_message=content)
 
         final_response = "No final response captured."
@@ -195,7 +193,7 @@ async def main():
         # print(json.dumps(final_session.state, indent=2))
         print("-------------------------------\n")
 
-    await call_agent("Show me site details for ATH2.")
+    await call_agent("list my sites in a table.")
     
 
 if __name__ == "__main__":
