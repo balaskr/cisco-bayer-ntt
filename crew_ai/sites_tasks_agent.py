@@ -1,20 +1,14 @@
 from crewai import Agent, Task, Crew, LLM
-from crewai.knowledge.source.json_knowledge_source import JSONKnowledgeSource
+from utils import search_json_objects
 import json
+import os
+from dotenv import load_dotenv;load_dotenv()
 
 llm = LLM(
     model="gemini/gemini-2.0-flash",
     temperature=0.7,
-    api_key=""
+    api_key=os.getenv("GOOGLE_API_KEY")
 )
-
-embedder= {
-        "provider": "google",
-        "config": {
-            "model": "models/text-embedding-004",
-            "api_key": ""
-        }
-    }
 
 # 1) Classifier Agent
 classifier = Agent(
@@ -72,8 +66,6 @@ summary_agent = Agent(
     backstory="You distill everything into a concise narrative.",
     llm=llm
 )
-import json
-from crewai.knowledge.source.json_knowledge_source import JSONKnowledgeSource
 
 def run_multimodal_query(user_query: str, hidden_json: dict, chat_history: list) -> str:
     print("\n--- START MULTIMODAL QUERY ---")
@@ -81,7 +73,6 @@ def run_multimodal_query(user_query: str, hidden_json: dict, chat_history: list)
     print("Setting up Step 1: Classification")
 
     # Step 1 - Classification
-    json_ks_step1 = JSONKnowledgeSource(file_paths=["data.json"])
 
     classify_task = Task(
         description=user_query,
@@ -92,8 +83,6 @@ def run_multimodal_query(user_query: str, hidden_json: dict, chat_history: list)
     crew_step1 = Crew(
         agents=[classifier],
         tasks=[classify_task],
-        knowledge_sources=[json_ks_step1],
-        embedder=embedder,
         verbose=True
     )
 
@@ -101,7 +90,6 @@ def run_multimodal_query(user_query: str, hidden_json: dict, chat_history: list)
     print(f"Classification result: {classify_result.raw}")
 
     label = classify_result.raw
-    context_file = "data.json"
     agent = None
     description = user_query
 
@@ -110,42 +98,34 @@ def run_multimodal_query(user_query: str, hidden_json: dict, chat_history: list)
     if label.startswith("SITE:"):
         query = label[len("SITE:"):].strip()
         print(f"[SITE mode] Query: {query}")
-        filtered = [s for s in hidden_json["data"] if query.lower() in json.dumps(s).lower()]
-        with open("knowledge/filtered_site.json", "w") as f:
-            json.dump(filtered, f)
-        context_file = "filtered_site.json"
+        filtered = search_json_objects(hidden_json["data"],query)
         agent = site_helper
-        description = query
+        description = query +"\n\n Context \n\n" + json.dumps(filtered)
 
     elif label.startswith("TASK:"):
         query = label[len("TASK:"):].strip()
         print(f"[TASK mode] Query: {query}")
-        filtered = []
-        for s in hidden_json["data"]:
-            filtered.extend([t for t in s.get("request_tasks", []) if query.lower() in json.dumps(t).lower()])
-        with open("knowledge/filtered_task.json", "w") as f:
-            json.dump(filtered, f)
-        context_file = "filtered_task.json"
+        filtered = search_json_objects(hidden_json["data"],query)
         agent = tasks_helper
-        description = query
+        description = query +"\n\n Context \n\n" + json.dumps(filtered)
 
     elif label.startswith("OVERALL:"):
         query = label[len("OVERALL:"):].strip()
         print(f"[OVERALL mode] Query: {query}")
         agent = overall_agent
-        description = query
+        description = query +"\n\n Context \n\n" +  json.dumps(hidden_json["data"])
 
     elif label == "SUMMARY":
         print("[SUMMARY mode]")
         agent = summary_agent
+        description = "\n\n Context \n\n" +  json.dumps(hidden_json["data"])
 
     else:
         print("[FALLBACK mode]")
         return label
 
-    print(f"Preparing Step 2 with context file: {context_file} and agent: {agent.role}")
+    print(f"Preparing Step 2 with agent: {agent.role}")
 
-    json_ks_step2 = JSONKnowledgeSource(file_paths=[context_file])
 
     task2 = Task(
         description=description,
@@ -156,8 +136,6 @@ def run_multimodal_query(user_query: str, hidden_json: dict, chat_history: list)
     crew_step2 = Crew(
         agents=[agent],
         tasks=[task2],
-        knowledge_sources=[json_ks_step1],
-        embedder=embedder,
         verbose=True
     )
 
@@ -174,13 +152,12 @@ with open("knowledge/data.json", "r") as f:
     hidden_json = json.load(f)
 
 # Provide user query
-user_query = "show me details of ATH2"
+user_query = "show me the tasks of ATH2"
+user_query2 = "give me an exec summary of all our sites"
 
 # Empty chat history for this example
 chat_history = []
 
 # Call the function
-response = run_multimodal_query(user_query, hidden_json, chat_history)
+response = run_multimodal_query(user_query2, hidden_json, chat_history)
 
-# Print the result
-print("\nFinal Response:\n", response)
