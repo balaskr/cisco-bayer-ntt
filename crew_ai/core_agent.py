@@ -110,8 +110,6 @@ def handle_user_request(user_query: str, context_json: dict, chat_history: list 
         # If it's not a delegation command, the core agent provided a direct response
         final_response = core_agent_decision
 
-    print("--- END CORE DELEGATOR ---\n")
-
     return final_response
 
 # Example usage (for testing this file directly)

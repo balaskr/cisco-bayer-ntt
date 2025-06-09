@@ -10,8 +10,8 @@ load_dotenv()
 
 # --- Streamlit App Setup ---
 
-st.set_page_config(page_title="Site & Task Assistant", page_icon="🏢")
-st.title("Site & Task Assistant")
+st.set_page_config(page_title="Project Administrator Assistant", page_icon="🏢")
+st.title("Assistant")
 
 # --- Data Loading (Cached for efficiency) ---
 @st.cache_data
@@ -35,7 +35,7 @@ context_json = load_hidden_json()
 if "messages" not in st.session_state:
     st.session_state.messages = []
     # Add an initial greeting message from the assistant
-    st.session_state.messages.append({"role": "assistant", "content": "Hello! I'm your Site & Task Assistant. How can I help you today?"})
+    st.session_state.messages.append({"role": "assistant", "content": "Hello! I'm your Project Adminstrator Assistant. How can I help you today?"})
 
 # --- Display Chat Messages ---
 for message in st.session_state.messages:

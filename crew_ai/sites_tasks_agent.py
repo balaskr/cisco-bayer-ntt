@@ -35,7 +35,7 @@ classifier = Agent(
         to guide subsequent processing. You are meticulous about adhering to strict output formats."""
     ),
     llm=llm,
-    verbose=True
+    verbose=False
 )
 
 # 2) Site Helper Agent (Slightly adjusted goal for clarity, handles specific/filtered sites)
@@ -61,7 +61,7 @@ site_helper = Agent(
         and extract 'state' for 'status'."""
     ),
     llm=llm,
-    verbose=True
+    verbose=False
 )
 
 # 3) Tasks Helper Agent
@@ -81,7 +81,7 @@ tasks_helper = Agent(
         and presenting their complete details in a clear Markdown format. You can handle requests for individual tasks or all tasks related to a specific site."""
     ),
     llm=llm,
-    verbose=True
+    verbose=False
 )
 
 # 4) Overall Agent 
@@ -100,7 +100,7 @@ overall_agent = Agent(
         bird's-eye insights across all sites and tasks, capable of identifying trends and totals."""
     ),
     llm=llm,
-    verbose=True
+    verbose=False
 )
 
 # 5) Summary Agent
@@ -119,7 +119,7 @@ summary_agent = Agent(
         providing key insights at a glance, highlighting important metrics and status overviews."""
     ),
     llm=llm,
-    verbose=True
+    verbose=False
 )
 
 # 6) NEW: List All Agent
@@ -136,7 +136,7 @@ list_all_agent = Agent(
         and organize them into a clean, easy-to-read Markdown table, prioritizing clarity and completeness."""
     ),
     llm=llm,
-    verbose=True
+    verbose=False
 )
 
 
@@ -146,7 +146,6 @@ def run_sites_tasks_agent_query(user_query: str, context_json: dict, chat_histor
     if chat_history is None:
         chat_history = []
 
-    print("\n--- START MULTIMODAL QUERY ---")
     print("Setting up Step 1: Classification")
 
     # --- UPDATED CLASSIFICATION INSTRUCTIONS ---
@@ -345,9 +344,11 @@ def run_sites_tasks_agent_query(user_query: str, context_json: dict, chat_histor
 
     print("Kicking off Step 2 task...\n")
     final_response = crew_step2.kickoff()
-    print("\n--- END MULTIMODAL QUERY ---\n")
+
 
     if final_response.raw.startswith('```') and final_response.raw.endswith("```"):
+        if "markdown" in final_response.raw:
+            return final_response.raw[11:-3]
         return final_response.raw[3:-3]
 
     return final_response
