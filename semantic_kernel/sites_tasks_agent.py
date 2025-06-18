@@ -2,19 +2,13 @@ import asyncio
 import json
 import logging
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
-from core.utils import search_json_objects
-from semantic_kernel.agents import (Agent, ChatCompletionAgent,
-                                    HandoffOrchestration,
-                                    OrchestrationHandoffs)
+from semantic_kernel.agents import HandoffOrchestration
 from semantic_kernel.agents.runtime import InProcessRuntime
-# Using AzureChatCompletion for Azure OpenAI.
-from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
 from semantic_kernel.contents import (AuthorRole, ChatMessageContent,
                                       FunctionCallContent,
                                       FunctionResultContent)
-from semantic_kernel.functions import KernelArguments, kernel_function
 from semantic_kernel.kernel import Kernel
 from semantic_kernel.utils.logging import setup_logging
 
