@@ -475,59 +475,7 @@ async def main():
     """
     # Create a dummy data.json for testing if it doesn't exist
     data_json_path = 'knowledge/data.json'
-    if not os.path.exists(data_json_path):
-        os.makedirs('knowledge', exist_ok=True)
-        dummy_data = {
-            "data": [
-                {
-                    "site_id": "ATH1",
-                    "location_name": "Athens Central",
-                    "state": "Active",
-                    "latitude": "Phase 1",
-                    "address_2": "Small Company",
-                    "request_tasks": [
-                        {"task_id": "T1", "description": "Install network cables", "status": "Pending"},
-                        {"task_id": "T2", "description": "Configure server racks", "status": "Completed"}
-                    ]
-                },
-                {
-                    "site_id": "ATH2",
-                    "location_name": "Maroussi Office",
-                    "state": "Inactive",
-                    "latitude": "Phase 2",
-                    "address_2": "Medium Company",
-                    "request_tasks": [
-                        {"task_id": "T3", "description": "Software deployment", "status": "Pending"},
-                        {"task_id": "T4", "description": "Hardware upgrade", "status": "In Progress"}
-                    ]
-                },
-                {
-                    "site_id": "BLR1",
-                    "location_name": "Bangalore Tech Park",
-                    "state": "Active",
-                    "latitude": "Phase 3",
-                    "address_2": "Large Company",
-                    "request_tasks": [
-                        {"task_id": "T5", "description": "Database migration", "status": "Completed"},
-                        {"task_id": "T6", "description": "User training", "status": "Scheduled"}
-                    ]
-                },
-                {
-                    "site_id": "NYC1",
-                    "location_name": "New York HQ",
-                    "state": "Active",
-                    "latitude": "Phase 1",
-                    "address_2": "Large Company",
-                    "request_tasks": [
-                        {"task_id": "T7", "description": "Security audit", "status": "Pending"},
-                    ]
-                }
-            ]
-        }
-        with open(data_json_path, 'w', encoding='utf-8') as f:
-            json.dump(dummy_data, f, indent=2)
-        print(f"Created dummy '{data_json_path}' for testing.")
-    
+
     print("\n--- Welcome to the Project Assistant ---")
     print("Type your queries about sites and tasks. Type 'exit' to quit.")
     
