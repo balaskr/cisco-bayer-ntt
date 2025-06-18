@@ -14,7 +14,7 @@ from semantic_kernel.functions import kernel_function, KernelArguments
 from semantic_kernel.kernel import Kernel
 import logging
 from semantic_kernel.utils.logging import setup_logging
-
+from utils import search_json_objects
 # Global variable to hold the loaded data, as plugins need access to it.
 # In a more robust system, this might be managed via dependency injection or a service layer.
 all_data: Dict[str, Any] = {}
@@ -23,44 +23,7 @@ setup_logging()
 logging.getLogger("kernel").setLevel(logging.DEBUG)
 
 # --- Utility Function (from your CrewAI snippet) ---
-def search_json_objects(data: List[Dict[str, Any]], query: str) -> List[Dict[str, Any]]:
-    """
-    Simulates searching through a list of JSON objects based on a query.
-    In a real scenario, this would be more sophisticated (e.g., fuzzy matching,
-    NLP-based search). For now, it's a simple case-insensitive substring match
-    on common fields or exact ID match.
-    """
-    if not data:
-        return []
 
-    results = []
-    query_lower = query.lower()
-
-    for item in data:
-        # Check for exact ID match for site_id or task_id
-        if "site_id" in item and item["site_id"].lower() == query_lower:
-            results.append(item)
-            continue
-        if "task_id" in item and str(item["task_id"]).lower() == query_lower:
-            results.append(item)
-            continue
-        
-        # Check for substring match in common string fields
-        for key, value in item.items():
-            if isinstance(value, str) and query_lower in value.lower():
-                results.append(item)
-                break
-            # If the item has nested tasks, search within them for task-related queries
-            if key == "request_tasks" and isinstance(value, list):
-                for task in value:
-                    if "task_id" in task and str(task["task_id"]).lower() == query_lower:
-                        results.append(item) # Return the parent site if a task matches
-                        break
-                    for task_key, task_value in task.items():
-                        if isinstance(task_value, str) and query_lower in task_value.lower():
-                            results.append(item)
-                            break
-    return results if results else []
 
 # --- Plugin Definitions ---
 
@@ -117,8 +80,11 @@ class SiteTasksPlugin:
         """
         Searches for sites based on a general query and returns a formatted list.
         """
+        print("here")
         sites = self._all_data.get("data", [])
+
         filtered_sites = search_json_objects(sites, query)
+        print(filtered_sites)
 
         if not filtered_sites:
             return f"No sites found matching the criteria: '{query}'."
@@ -128,6 +94,7 @@ class SiteTasksPlugin:
             output += (
                 f"- **{site.get('location_name', 'N/A')}** (ID: {site.get('site_id', 'N/A')}) - Status: {site.get('state', 'N/A')}\n"
             )
+        print(output)
         return output
 
     @kernel_function(
@@ -474,7 +441,7 @@ async def main():
     Main function to run the interactive agent system.
     """
     # Create a dummy data.json for testing if it doesn't exist
-    data_json_path = 'knowledge/data.json'
+    data_json_path = 'semantic_kernel/knowledge/data.json'
 
     print("\n--- Welcome to the Project Assistant ---")
     print("Type your queries about sites and tasks. Type 'exit' to quit.")
