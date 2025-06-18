@@ -1,23 +1,20 @@
 import json
 import re
 
-from nltk.corpus import stopwords
 
-# Download once if not already done
-# nltk.download('stopwords') # Uncomment if you haven't run this before
+def load_stopwords_from_file(file_path: str) -> set:
+    reconstructed_stopwords = set()
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                word = line.strip()
+                if word:
+                    reconstructed_stopwords.add(word)
+    except FileNotFoundError:
+        pass
+    return reconstructed_stopwords
 
-# Load default English stop words
-nltk_stopwords = set(stopwords.words('english'))
-
-# Add your custom domain-specific stop words
-custom_stopwords = {
-    "site", "sites", "task", "tasks", "show", "me", "details", "of", "the",
-    "and", "please", "give", "info", "information", "about", "list", "all", "get",
-    "status", "a", "an", "with", "my", "in", "a", "table", "entries", "everything", "full" # Added more presentation/meta words
-}
-
-# Combined stop words set
-all_stopwords = nltk_stopwords.union(custom_stopwords)
+all_stopwords = load_stopwords_from_file("knowledge/stopwords.txt")
 
 def search_json_objects(data, query):
     """

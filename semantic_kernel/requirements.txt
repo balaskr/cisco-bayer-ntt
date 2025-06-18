@@ -1,3 +1,2 @@
 semantic-kernel
-nltk[stopwords]
 azure-functions
