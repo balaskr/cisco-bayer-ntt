@@ -4,8 +4,6 @@ import logging
 import os
 from typing import Any, Dict, List, Optional
 
-from utils import search_json_objects
-
 from semantic_kernel.agents import (Agent, ChatCompletionAgent,
                                     HandoffOrchestration,
                                     OrchestrationHandoffs)
@@ -15,6 +13,7 @@ from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
 from semantic_kernel.contents import (AuthorRole, ChatMessageContent,
                                       FunctionCallContent,
                                       FunctionResultContent)
+from core.utils import search_json_objects
 from semantic_kernel.functions import KernelArguments, kernel_function
 from semantic_kernel.kernel import Kernel
 from semantic_kernel.utils.logging import setup_logging
