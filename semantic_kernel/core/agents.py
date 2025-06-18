@@ -358,25 +358,3 @@ def get_agents(sk_kernel: Kernel, data_plugin: SiteTasksPlugin) -> tuple[list[Ag
         summary_agent,
         list_all_agent
     ], handoffs
-
-
-def agent_response_callback(message: ChatMessageContent) -> None:
-    logging.info(f"\n--- Agent Response ({message.name}) ---")
-    if message.content:
-        logging.info(f"Content: {message.content}")
-    for item in message.items:
-        if isinstance(item, FunctionCallContent):
-            logging.info(f"Function Call: '{item.name}' with arguments '{item.arguments}'")
-        if isinstance(item, FunctionResultContent):
-            result_str = str(item.result)
-            if len(result_str) > 500:
-                logging.info(f"Function Result from '{item.name}':\n{result_str[:500]}...\n(Truncated for display)")
-            else:
-                logging.info(f"Function Result from '{item.name}':\n{result_str}")
-    logging.info("-------------------------------------")
-
-
-# This function is not used in the HTTP trigger, but kept for completeness of the original SK code.
-async def human_response_function() -> ChatMessageContent:
-    user_input = "Agent requires input. This won't be used in HTTP trigger."
-    return ChatMessageContent(role=AuthorRole.USER, content=user_input)

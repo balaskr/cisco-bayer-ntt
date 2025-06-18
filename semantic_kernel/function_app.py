@@ -7,15 +7,19 @@ from typing import Any, Dict
 import azure.functions as func
 import requests  # For fetching data from the external API
 
-from core.agents import (agent_response_callback, get_agents,
-                         human_response_function)
+from core.agents import get_agents
 from core.plugins import SiteTasksPlugin
 # Semantic Kernel Imports
 from semantic_kernel.agents import HandoffOrchestration
 from semantic_kernel.agents.runtime import InProcessRuntime
-from semantic_kernel.contents import ChatMessageContent
+from semantic_kernel.contents import (AuthorRole, ChatMessageContent,
+                                      FunctionCallContent,
+                                      FunctionResultContent)
 from semantic_kernel.kernel import Kernel
 from semantic_kernel.utils.logging import setup_logging
+
+from dotenv import load_dotenv;load_dotenv()
+
 
 # Configure Semantic Kernel logging
 setup_logging()
@@ -23,6 +27,27 @@ logging.getLogger("kernel").setLevel(logging.DEBUG)
 
 # Global variable for the Azure Function app instance
 app = func.FunctionApp()
+
+def agent_response_callback(message: ChatMessageContent) -> None:
+    logging.info(f"\n--- Agent Response ({message.name}) ---")
+    if message.content:
+        logging.info(f"Content: {message.content}")
+    for item in message.items:
+        if isinstance(item, FunctionCallContent):
+            logging.info(f"Function Call: '{item.name}' with arguments '{item.arguments}'")
+        if isinstance(item, FunctionResultContent):
+            result_str = str(item.result)
+            if len(result_str) > 500:
+                logging.info(f"Function Result from '{item.name}':\n{result_str[:500]}...\n(Truncated for display)")
+            else:
+                logging.info(f"Function Result from '{item.name}':\n{result_str}")
+    logging.info("-------------------------------------")
+
+
+# This function is not used in the HTTP trigger, but kept for completeness of the original SK code.
+async def human_response_function() -> ChatMessageContent:
+    user_input = "Agent requires input. This won't be used in HTTP trigger."
+    return ChatMessageContent(role=AuthorRole.USER, content=user_input)
 
 
 async def run_semantic_kernel_agent_query(user_query: str, site_tasks_data: Dict[str, Any]) -> str:
