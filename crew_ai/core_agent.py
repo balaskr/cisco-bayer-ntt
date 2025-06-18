@@ -1,7 +1,8 @@
-import os
 import json
+import os
+
+from crewai import LLM, Agent, Crew, Process, Task
 from dotenv import load_dotenv
-from crewai import Agent, Task, Crew, Process, LLM
 from sites_tasks_agent import run_sites_tasks_agent_query
 
 # Load environment variables

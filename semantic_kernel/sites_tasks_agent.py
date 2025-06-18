@@ -1,28 +1,33 @@
-import json
-import os
 import asyncio
-from typing import List, Dict, Any, Optional
+import json
+import logging
+import os
+from typing import Any, Dict, List, Optional
+
+from utils import search_json_objects
+
+from semantic_kernel.agents import (Agent, ChatCompletionAgent,
+                                    HandoffOrchestration,
+                                    OrchestrationHandoffs)
+from semantic_kernel.agents.runtime import InProcessRuntime
+# Using AzureChatCompletion for Azure OpenAI.
+from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
+from semantic_kernel.contents import (AuthorRole, ChatMessageContent,
+                                      FunctionCallContent,
+                                      FunctionResultContent)
+from semantic_kernel.functions import KernelArguments, kernel_function
+from semantic_kernel.kernel import Kernel
+from semantic_kernel.utils.logging import setup_logging
 
 from dotenv import load_dotenv;load_dotenv()
 
-from semantic_kernel.agents import Agent, ChatCompletionAgent, HandoffOrchestration, OrchestrationHandoffs
-from semantic_kernel.agents.runtime import InProcessRuntime
-# Using AzureChatCompletion for Azure OpenAI.
-from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion 
-from semantic_kernel.contents import AuthorRole, ChatMessageContent, FunctionCallContent, FunctionResultContent
-from semantic_kernel.functions import kernel_function, KernelArguments
-from semantic_kernel.kernel import Kernel
-import logging
-from semantic_kernel.utils.logging import setup_logging
-from utils import search_json_objects
+
 # Global variable to hold the loaded data, as plugins need access to it.
 # In a more robust system, this might be managed via dependency injection or a service layer.
 all_data: Dict[str, Any] = {}
 
 setup_logging()
 logging.getLogger("kernel").setLevel(logging.DEBUG)
-
-# --- Utility Function (from your CrewAI snippet) ---
 
 
 # --- Plugin Definitions ---

@@ -1,6 +1,7 @@
-from nltk.corpus import stopwords
-import re
 import json
+import re
+
+from nltk.corpus import stopwords
 
 # Download once if not already done
 # nltk.download('stopwords') # Uncomment if you haven't run this before

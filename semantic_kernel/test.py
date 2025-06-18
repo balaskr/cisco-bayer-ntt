@@ -2,10 +2,14 @@
 
 import asyncio
 
-from semantic_kernel.agents import Agent, ChatCompletionAgent, HandoffOrchestration, OrchestrationHandoffs
+from semantic_kernel.agents import (Agent, ChatCompletionAgent,
+                                    HandoffOrchestration,
+                                    OrchestrationHandoffs)
 from semantic_kernel.agents.runtime import InProcessRuntime
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
-from semantic_kernel.contents import AuthorRole, ChatMessageContent, FunctionCallContent, FunctionResultContent
+from semantic_kernel.contents import (AuthorRole, ChatMessageContent,
+                                      FunctionCallContent,
+                                      FunctionResultContent)
 from semantic_kernel.functions import kernel_function
 
 """

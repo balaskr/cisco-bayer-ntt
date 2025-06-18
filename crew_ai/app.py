@@ -1,9 +1,9 @@
-import streamlit as st
 import json
 import os
-from dotenv import load_dotenv
 
+import streamlit as st
 from core_agent import handle_user_request
+from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
