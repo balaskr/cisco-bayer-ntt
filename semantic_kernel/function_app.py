@@ -23,7 +23,7 @@ from dotenv import load_dotenv;load_dotenv()
 
 # Configure Semantic Kernel logging
 setup_logging()
-logging.getLogger("kernel").setLevel(logging.DEBUG)
+logging.getLogger("kernel").setLevel(logging.INFO)
 
 # Global variable for the Azure Function app instance
 app = func.FunctionApp()
@@ -32,15 +32,15 @@ def agent_response_callback(message: ChatMessageContent) -> None:
     logging.info(f"\n--- Agent Response ({message.name}) ---")
     if message.content:
         logging.info(f"Content: {message.content}")
-    for item in message.items:
-        if isinstance(item, FunctionCallContent):
-            logging.info(f"Function Call: '{item.name}' with arguments '{item.arguments}'")
-        if isinstance(item, FunctionResultContent):
-            result_str = str(item.result)
-            if len(result_str) > 500:
-                logging.info(f"Function Result from '{item.name}':\n{result_str[:500]}...\n(Truncated for display)")
-            else:
-                logging.info(f"Function Result from '{item.name}':\n{result_str}")
+    # for item in message.items:
+    #     if isinstance(item, FunctionCallContent):
+    #         logging.info(f"Function Call: '{item.name}' with arguments '{item.arguments}'")
+    #     if isinstance(item, FunctionResultContent):
+    #         result_str = str(item.result)
+    #         if len(result_str) > 500:
+    #             logging.info(f"Function Result from '{item.name}':\n{result_str[:500]}...\n(Truncated for display)")
+    #         else:
+    #             logging.info(f"Function Result from '{item.name}':\n{result_str}")
     logging.info("-------------------------------------")
 
 
@@ -109,9 +109,9 @@ async def skAgenticPoCFunc(req: func.HttpRequest) -> func.HttpResponse:
     
     # Extract parameters from the JSON body
     user_input = req_body.get("text")
-    user_id = req_body.get("from", {}).get("id") # Not directly used by SK but often useful for logging/context
-    chat_interaction_id = req_body.get("conversation", {}).get("id") # Not directly used by SK but often useful for logging/context
-    auth_header = req_body.get("channelData", {}).get("requestHeader", {}).get("X-Insight-Token")
+    # user_id = req_body.get("from", {}).get("id") # Not directly used by SK but often useful for logging/context
+    # chat_interaction_id = req_body.get("conversation", {}).get("id") # Not directly used by SK but often useful for logging/context
+    # auth_header = req_body.get("channelData", {}).get("requestHeader", {}).get("X-Insight-Token")
 
     # Validate required parameters for this specific function
     if not user_input:
@@ -119,24 +119,24 @@ async def skAgenticPoCFunc(req: func.HttpRequest) -> func.HttpResponse:
             "Missing required parameter: 'text' in the JSON body.",
             status_code=400
         )
-    if not auth_header:
-        return func.HttpResponse(
-            "Missing required parameter: 'X-Insight-Token' in channelData.requestHeader.",
-            status_code=400
-        )
+    # if not auth_header:
+    #     return func.HttpResponse(
+    #         "Missing required parameter: 'X-Insight-Token' in channelData.requestHeader.",
+    #         status_code=400
+    #     )
 
     try:
         # 1. Fetch data from the external API using the provided URL and X-Insight-Token
-        data_api_url = "https://int.portal.nttltd.global.ntt/l/tis/project-overview-api/v1/task/sitesanalysis?page=1&limit=100"
-        headers = {
-            "Accept": "*/*",
-            "X-Insight-Token": auth_header
-        }
+        # data_api_url = "https://int.portal.nttltd.global.ntt/l/tis/project-overview-api/v1/task/sitesanalysis?page=1&limit=100"
+        # headers = {
+        #     "Accept": "*/*",
+        #     "X-Insight-Token": auth_header
+        # }
         
-        logging.info(f"Attempting to fetch data from: {data_api_url}")
-        api_response = requests.get(data_api_url, headers=headers, timeout=120)
-        api_response.raise_for_status() # Raise an HTTPError for bad responses (4xx or 5xx)
-        site_tasks_data = api_response.json()
+        # logging.info(f"Attempting to fetch data from: {data_api_url}")
+        # api_response = requests.get(data_api_url, headers=headers, timeout=120)
+        # api_response.raise_for_status() # Raise an HTTPError for bad responses (4xx or 5xx)
+        site_tasks_data = {}
         logging.info("Successfully fetched data from external API.")
 
         # 2. Invoke the Semantic Kernel multi-agent system
