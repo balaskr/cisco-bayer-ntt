@@ -4,7 +4,8 @@ from typing import Any, Dict
 
 # Semantic Kernel Imports
 from semantic_kernel.functions import kernel_function
-from utils import search_json_objects
+
+from core.utils import search_json_objects
 
 
 class SiteTasksPlugin:
