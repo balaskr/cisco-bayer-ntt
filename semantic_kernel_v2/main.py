@@ -1,20 +1,24 @@
-import json
-import os
 import asyncio
+import json
 import logging
-from typing import List, Dict, Any
+import os
+from typing import Any, Dict, List
 
 # Semantic Kernel Imports
 from semantic_kernel.agents import ChatCompletionAgent
+from semantic_kernel.connectors.ai.google.google_ai import \
+    GoogleAIChatCompletion
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
-from semantic_kernel.contents import AuthorRole, ChatMessageContent, FunctionCallContent, FunctionResultContent
+from semantic_kernel.contents import (AuthorRole, ChatMessageContent,
+                                      FunctionCallContent,
+                                      FunctionResultContent)
 from semantic_kernel.kernel import Kernel
 from semantic_kernel.utils.logging import setup_logging
+
 from core.plugins import SiteTasksPlugin
 
 from dotenv import load_dotenv;load_dotenv()
 
-from semantic_kernel.connectors.ai.google.google_ai import GoogleAIChatCompletion
 
 chat_completion_service = GoogleAIChatCompletion(
     gemini_model_id="gemini-1.5-flash",

@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
 
 # Semantic Kernel Imports
 from semantic_kernel.functions import kernel_function
