@@ -28,10 +28,14 @@ logging.getLogger("kernel").setLevel(logging.INFO)
 # Global variable for the Azure Function app instance
 app = func.FunctionApp()
 
+agent_response: str = None
+
 def agent_response_callback(message: ChatMessageContent) -> None:
+    global agent_response
     logging.info(f"\n--- Agent Response ({message.name}) ---")
     if message.content:
         logging.info(f"Content: {message.content}")
+        agent_response = str(message.content)
     # for item in message.items:
     #     if isinstance(item, FunctionCallContent):
     #         logging.info(f"Function Call: '{item.name}' with arguments '{item.arguments}'")
@@ -136,15 +140,15 @@ async def skAgenticPoCFunc(req: func.HttpRequest) -> func.HttpResponse:
         # logging.info(f"Attempting to fetch data from: {data_api_url}")
         # api_response = requests.get(data_api_url, headers=headers, timeout=120)
         # api_response.raise_for_status() # Raise an HTTPError for bad responses (4xx or 5xx)
-        site_tasks_data = {}
+        site_tasks_data = json.load(open("knowledge/data.json"))
         logging.info("Successfully fetched data from external API.")
 
         # 2. Invoke the Semantic Kernel multi-agent system
         final_response_content = await run_semantic_kernel_agent_query(user_input, site_tasks_data)
-
+        print(agent_response)
         # 3. Return the Semantic Kernel's final response
         return func.HttpResponse(
-            json.dumps({"response": final_response_content}),
+            json.dumps({"response": agent_response}),
             mimetype="application/json",
             status_code=200
         )

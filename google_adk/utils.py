@@ -1,30 +1,49 @@
+import json
+import re
 
 
-def read_prompt(agent):
+def load_stopwords_from_file(file_path: str) -> set:
+    reconstructed_stopwords = set()
     try:
-        with open(f"{agent}.prompt", "r", encoding='utf-8') as prompt_file:
-            content = prompt_file.read()
-        return content
+        with open(file_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                word = line.strip()
+                if word:
+                    reconstructed_stopwords.add(word)
     except FileNotFoundError:
-        print(f"Warning: Prompt file '{agent}.prompt' not found. Returning empty string.")
-        return ""
-    except Exception as e:
-        print(f"An unexpected error occurred while reading '{agent}.prompt': {e}")
-        return ""
+        pass
+    return reconstructed_stopwords
 
-def mock_api()->str:
-    """Returns sites information of the given user"""
-    with open("data.json", 'r', encoding='utf-8') as file:
-        content = file.read()
-    return content
+all_stopwords = load_stopwords_from_file("knowledge/stopwords.txt")
 
+def search_json_objects(data, query):
+    """
+    Search JSON objects for any keyword from cleaned query.
 
-class Prompts:
-    def __init__(self):
-        # The prompts are loaded when an instance of Prompts is created
-        self.delegator = read_prompt("delegator")
-        self.sites = read_prompt("sites")
-        self.tasks = read_prompt("tasks")
-        self.overall = read_prompt("overall")
+    Args:
+        data (list[dict]): List of JSON objects.
+        query (str): User query string.
 
-prompts = Prompts()
+    Returns:
+        list[dict]: List of matched JSON objects.
+    """
+    # Clean query tokens
+    tokens = re.findall(r'\w+', query.lower())
+    keywords = [t for t  in tokens if t not in all_stopwords]
+
+    if not keywords:
+        # If no keywords, it means the query might have been entirely stopwords,
+        # or implies a broad request that should be handled by LISTALL or OVERALL.
+        # For filtering purposes, if there are no keywords, this function yields no matches.
+        # The routing logic in run_multimodal_query should handle "list all" via LISTALL label.
+        return [] # Return empty list if no meaningful keywords for specific filtering
+
+    matched = []
+    for obj in data:
+        dumped = json.dumps(obj).lower()
+        
+        # If any keyword is substring in dumped JSON, keep object
+        if any(k in dumped for k in keywords):
+            matched.append(obj)
+
+    return matched
